@@ -1,0 +1,19 @@
+{
+  "name": "jsl",
+  "version": "1.0.0",
+  "description": "very beginning step into js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RomanovichSG/jsl.git"
+  },
+  "author": "Romanovich S.G.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RomanovichSG/jsl/issues"
+  },
+  "homepage": "https://github.com/RomanovichSG/jsl#readme"
+}
