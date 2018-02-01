@@ -4,6 +4,12 @@ app.use(function(request, response, next) {
     console.log('/script' + request.url + '.js');
     next();
 });
+app.get('/css*',function(request, response) {
+    response.sendFile(request.url, {root: __dirname });
+});
+app.get('/img*',function(request, response) {
+    response.sendFile(request.url, {root: __dirname });
+});
 app.get(/.*/, function(request, response) {
     switch (request.url) {
         case '/': response.sendFile('index.html', {root: __dirname });
