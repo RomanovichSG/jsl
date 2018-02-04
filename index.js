@@ -1,6 +1,46 @@
-var express = require('express');
-var app = express();
+'use strict'
 
+let express = require('express');
+let app = express();
+let hbs = require("hbs");
+let db = require('mysql');
+let connection = db.createConnection({
+    host: 'localhost',
+    user: 'shop',
+    password: 'sh0ppassw0rd',
+    database: 'shop'
+});
+
+let services = [];
+
+connection.connect();
+
+function renderServices(callback) {
+    connection.query(
+        'SELECT name FROM service',
+        function(err, res) {
+            if (err) {
+                callback(err, null);
+            } else
+                callback(null, res);
+        }
+    )
+}
+
+renderServices(function (err, res) {
+    if (err) {
+        throw err;
+    } else {
+        let length = 0;
+        while (length < res.length) {
+            services.push(res[length].name);
+            ++length;
+        }
+    }
+})
+
+hbs.registerPartials(__dirname + '/views/partials');
+app.set('view engine', 'hbs');
 app.get(/.*/, function(request, response) {
         if (
             /^\/script\//.test(request.url) ||
@@ -10,9 +50,15 @@ app.get(/.*/, function(request, response) {
             response.sendFile(request.url, {root: __dirname });
         } else {
             switch (request.url) {
-                case '/': response.sendFile('index.html', {root: __dirname });
+                case '/': response.render('index.hbs',
+                    {
+                        service: services
+                    }
+                );
                 break;
-                default: response.sendFile('html' + request.url + '.html', {root: __dirname });
+                case '/main': response.render('main' + request.url + '.hbs');
+                break;
+                default: response.render('error.hbs');
             }
         }
 });
