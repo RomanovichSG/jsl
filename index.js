@@ -1,14 +1,65 @@
-var express = require('express');
-var app = express();
-app.use(function(request, response, next) {
-    console.log('/script' + request.url + '.js');
-    next();
+'use strict'
+
+let express = require('express');
+let app = express();
+let hbs = require("hbs");
+let db = require('mysql');
+let connection = db.createConnection({
+    host: 'localhost',
+    user: 'shop',
+    password: 'sh0ppassw0rd',
+    database: 'shop'
 });
-app.get(/.*/, function(request, response) {
-    switch (request.url) {
-        case '/': response.sendFile('index.html', {root: __dirname });
-        break;
-        default: response.sendFile('html' + request.url + '.html', {root: __dirname });
+
+let services = [];
+
+connection.connect();
+
+function renderServices(callback) {
+    connection.query(
+        'SELECT name FROM service',
+        function(err, res) {
+            if (err) {
+                callback(err, null);
+            } else
+                callback(null, res);
+        }
+    )
+}
+
+renderServices(function (err, res) {
+    if (err) {
+        throw err;
+    } else {
+        let length = 0;
+        while (length < res.length) {
+            services.push(res[length].name);
+            ++length;
+        }
     }
+})
+
+hbs.registerPartials(__dirname + '/views/partials');
+app.set('view engine', 'hbs');
+app.get(/.*/, function(request, response) {
+        if (
+            /^\/script\//.test(request.url) ||
+            /^\/css\//.test(request.url) ||
+            /^\/img\//.test(request.url)
+        ) {
+            response.sendFile(request.url, {root: __dirname });
+        } else {
+            switch (request.url) {
+                case '/': response.render('index.hbs',
+                    {
+                        service: services
+                    }
+                );
+                break;
+                case '/main': response.render('main' + request.url + '.hbs');
+                break;
+                default: response.render('error.hbs');
+            }
+        }
 });
 app.listen(4000);
